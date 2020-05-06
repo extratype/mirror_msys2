@@ -1,5 +1,6 @@
 import typing as ty
 import contextlib
+import re
 import sys
 import subprocess
 import os
@@ -131,10 +132,11 @@ class Repository:
 
                     length = resp.headers.get('Content-Length')
                     if length is not None:
-                        print(f' ({length} bytes)', flush=True)
+                        print(f' ({length} bytes)', end='', flush=True)
                     if i > 0:
                         # current mirror
-                        print(f' ({i+1})', flush=True)
+                        print(f' ({i+1})', end='', flush=True)
+                    print(end, end='', flush=True)
                     end = ''
 
                     with open(path, 'wb') as f:
@@ -176,15 +178,18 @@ class Repository:
         proc = subprocess.run([
             GPG_BIN, '--homedir', GPG_HOME,
             '--verify', sigpath, path], capture_output=True,
-            input=gpg_input, check=True)
+            input=gpg_input, env={**os.environ, 'LC_ALL': 'C'})
         stderr = proc.stderr.decode()
+        if proc.returncode != 0:
+            raise Error(f'failed to verify {basename}', stderr)
+
         print(stderr, end='', file=sys.stderr, flush=True)
         return stderr
 
     @staticmethod
     def _gpg_parse_date(stderr):
         line = stderr.split('\n', maxsplit=1)[0].rstrip()
-        # format depends on locale (assume default)
+        # NOTE: format depends on locale
         return datetime.datetime.strptime(
             line, 'gpg: Signature made %a %b %d %H:%M:%S %Y').astimezone()
 
@@ -296,7 +301,8 @@ class Repository:
         remote_pkgs = {desc['FILENAME']: desc for desc in self.pkgs.values()}
         local_pkgs: ty.Set[str] = set(
             entry.name for entry in os.scandir(self.destdir)
-            if entry.is_file() and entry.name.endswith('.tar.xz'))
+            if entry.is_file() and re.search(
+                r'\.tar\.[^.]*$', entry.name) is not None)
 
         # remove old files
         for file in local_pkgs:
@@ -344,21 +350,18 @@ class Repository:
                         None if local or osp.exists(joinpath(self.destdir,
                                                              filesig))
                         else self.meta_urls)
+
+                    ts = self._gpg_parse_date(self._gpg_verify(
+                        filesig, file)).timestamp()
+                    if ts >= desc['BUILDDATE']:
+                        # at least later the build date
+                        # signature verified
+                        break
+                    else:
+                        print(f'{file} is older than expected as in the database',
+                            file=sys.stderr, flush=True)
                 except (OSError, Error) as e:
                     print(e, file=sys.stderr, flush=True)
-                    print(f'{file} could not be verified', file=sys.stderr,
-                          flush=True)
-                    # treat as corrupted
-                    continue
-
-                ts = self._gpg_parse_date(self._gpg_verify(
-                    filesig, file)).timestamp()
-                if ts >= desc['BUILDDATE']:
-                    # at least later the build date
-                    break
-                else:
-                    print(f'{file} is older than expected as in the database',
-                          file=sys.stderr, flush=True)
             else:
                 # corrupt
                 # move fails if already exists
@@ -389,7 +392,8 @@ def main():
         ['https://sourceforge.net/projects/msys2/files/REPOS/MSYS2/'
             + MSYS2_ARCH,
          f'http://repo.msys2.org/msys/{MSYS2_ARCH}'],
-        [f'https://mirror.tuna.tsinghua.edu.cn/msys2/msys/{MSYS2_ARCH}',
+        [f'http://repo.msys2.org/msys/{MSYS2_ARCH}',
+         f'https://mirror.tuna.tsinghua.edu.cn/msys2/msys/{MSYS2_ARCH}',
          f'https://mirror.yandex.ru/mirrors/msys2/msys/{MSYS2_ARCH}'],
         joinpath(destdir, f'msys/{MSYS2_ARCH}'))
     msys.pkg_urls += msys.meta_urls
@@ -401,7 +405,8 @@ def main():
         ['https://sourceforge.net/projects/msys2/files/REPOS/MINGW/'
             + MSYS2_ARCH,
          f'http://repo.msys2.org/mingw/{MSYS2_ARCH}'],
-        [f'https://mirror.tuna.tsinghua.edu.cn/msys2/mingw/{MSYS2_ARCH}',
+        [f'http://repo.msys2.org/mingw/{MSYS2_ARCH}',
+         f'https://mirror.tuna.tsinghua.edu.cn/msys2/mingw/{MSYS2_ARCH}',
          f'https://mirror.yandex.ru/mirrors/msys2/mingw/{MSYS2_ARCH}'],
         joinpath(destdir, f'mingw/{MSYS2_ARCH}'))
     mingw.pkg_urls += mingw.meta_urls
