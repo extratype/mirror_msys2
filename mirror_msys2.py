@@ -392,8 +392,8 @@ def main():
         ['https://sourceforge.net/projects/msys2/files/REPOS/MSYS2/'
             + MSYS2_ARCH,
          f'http://repo.msys2.org/msys/{MSYS2_ARCH}'],
-        [f'https://mirror.tuna.tsinghua.edu.cn/msys2/msys/{MSYS2_ARCH}',
-         f'https://mirror.yandex.ru/mirrors/msys2/msys/{MSYS2_ARCH}',
+        [f'https://mirror.yandex.ru/mirrors/msys2/msys/{MSYS2_ARCH}',
+         f'https://mirror.tuna.tsinghua.edu.cn/msys2/msys/{MSYS2_ARCH}',
          f'http://repo.msys2.org/msys/{MSYS2_ARCH}'],
         joinpath(destdir, f'msys/{MSYS2_ARCH}'))
     msys.pkg_urls += msys.meta_urls
@@ -405,8 +405,8 @@ def main():
         ['https://sourceforge.net/projects/msys2/files/REPOS/MINGW/'
             + MSYS2_ARCH,
          f'http://repo.msys2.org/mingw/{MSYS2_ARCH}'],
-        [f'https://mirror.tuna.tsinghua.edu.cn/msys2/mingw/{MSYS2_ARCH}',
-         f'https://mirror.yandex.ru/mirrors/msys2/mingw/{MSYS2_ARCH}',
+        [f'https://mirror.yandex.ru/mirrors/msys2/mingw/{MSYS2_ARCH}',
+         f'https://mirror.tuna.tsinghua.edu.cn/msys2/mingw/{MSYS2_ARCH}',
          f'http://repo.msys2.org/mingw/{MSYS2_ARCH}'],
         joinpath(destdir, f'mingw/{MSYS2_ARCH}'))
     mingw.pkg_urls += mingw.meta_urls
