@@ -2,12 +2,13 @@ Requirements
 
 Python 3.6+
 requests
+pyzstd
 
 
-Set mirrors in main()
+Configurations in main()
 
-* mirror for database
-* mirror for package files
+* repositories
+* mirrors
 
 
 Usage
@@ -18,9 +19,11 @@ archive/: old package files
 corrupt/: checksum mismatch
 
 
-Set local mirror
+Using local mirror (example destdir: E:\Software\Develop\msys2)
 
 /etc/pacman.d/mirrorlist.*
 
 Server = file:///e/Software/Develop/msys2/msys/$arch/
 Server = file:///e/Software/Develop/msys2/mingw/x86_64/
+Server = file:///e/Software/Develop/msys2/mingw/ucrt64/
+Server = file:///e/Software/Develop/msys2/mingw/clang64/
