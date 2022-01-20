@@ -37,9 +37,6 @@ Modify `/etc/pacman.d/mirrorlist.*` in MSYS2. If the *destdir* is `E:\Software\D
 ```
 Server = file:///e/Software/Develop/msys2/msys/$arch/
 Server = file:///e/Software/Develop/msys2/mingw/$repo/
-Server = file:///e/Software/Develop/msys2/mingw/x86_64/
-Server = file:///e/Software/Develop/msys2/mingw/ucrt64/
-Server = file:///e/Software/Develop/msys2/mingw/clang64/
 ```
 
 Each line corresponds to one of the `mirrorlist.*` file. Replace each whitespace in a path by `%20`. Network locations can be used as well: `file:////localhost/...`.

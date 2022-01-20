@@ -419,7 +419,7 @@ def main():
             joinpath(destdir, path))
         for name, path in [
             ('msys', 'msys/x86_64'),
-            ('mingw64', 'mingw/x86_64')]]
+            ('mingw64', 'mingw/mingw64')]]
 
     for repo in repos:
         repo.pkg_urls += repo.meta_urls
