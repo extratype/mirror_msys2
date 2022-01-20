@@ -6,6 +6,7 @@ Mirror MSYS2 repositories locally
 
 * Python 3.6+
 * `pip install requests pyzstd`
+* MSYS2 installation at `C:\msys64`
 
 ## Configurations
 
