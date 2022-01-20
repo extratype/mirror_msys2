@@ -23,7 +23,7 @@ Only `mirror_msys2.py` is necessary to run.
 
 Package files and metadata are downloaded in the *destdir*. By default it is the working directory.
 
-Invoke with the same command to update.
+Invoke with the same command to verify and update all.
 
 Extra subdirectories:
 
@@ -42,4 +42,4 @@ Server = file:///e/Software/Develop/msys2/mingw/ucrt64/
 Server = file:///e/Software/Develop/msys2/mingw/clang64/
 ```
 
-Each line corresponds to one of the `mirrorlist.*` file. Replace each whitespace in a path by `%20`. Network location can be used as well: `file:////localhost/...`.
+Each line corresponds to one of the `mirrorlist.*` file. Replace each whitespace in a path by `%20`. Network locations can be used as well: `file:////localhost/...`.
