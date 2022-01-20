@@ -309,22 +309,27 @@ class Repository:
         If *local*, missing files are not fetched.
         """
         remote_pkgs = {desc['FILENAME']: desc for desc in self.pkgs.values()}
-        local_pkgs: ty.Set[str] = set(
-            entry.name for entry in os.scandir(self.destdir)
-            if entry.is_file() and re.search(
-                r'\.tar\.[^.]*$', entry.name) is not None)
+        local_pkgs: ty.Set[str] = set()
+        local_pkgs_sig: ty.Set[str] = set()
+        for entry in os.scandir(self.destdir):
+            entry: os.DirEntry
+            if entry.is_file():
+                if re.search(r'\.tar\.[^.]+$', entry.name) is not None:
+                    local_pkgs.add(entry.name)
+                elif re.search(r'\.tar\.[^.]+\.sig$', entry.name) is not None:
+                    local_pkgs_sig.add(entry.name)
 
         # remove old files
         for file in local_pkgs:
             if file not in remote_pkgs:
-                filesig = file + '.sig'
                 os.rename(joinpath(self.destdir, file),
                           joinpath(self.archive_dir, file))
-                try:
-                    os.rename(joinpath(self.destdir, filesig),
-                              joinpath(self.archive_dir, filesig))
-                except FileNotFoundError:
-                    pass
+
+        for filesig in local_pkgs_sig:
+            file = filesig[:-4]
+            if file not in remote_pkgs:
+                os.rename(joinpath(self.destdir, filesig),
+                          joinpath(self.archive_dir, filesig))
 
         # update and verify files
         for file, desc in remote_pkgs.items():
@@ -348,6 +353,16 @@ class Repository:
                 continue
 
             filesig = file + '.sig'
+            try:
+                self._process_file(
+                    filesig,
+                    None if local or osp.exists(joinpath(self.destdir,
+                                                         filesig))
+                    else self.meta_urls)
+            except (OSError, Error) as e:
+                print(e, file=sys.stderr, flush=True)
+                continue
+
             for _ in range(1):
                 if sha256.hexdigest() == desc['SHA256SUM']:
                     break
@@ -355,12 +370,6 @@ class Repository:
                 # desc['PGPSIG'] (.sig encoded in base64) may be incorrect,
                 # fetch .sig file and verify it
                 try:
-                    self._process_file(
-                        filesig,
-                        None if local or osp.exists(joinpath(self.destdir,
-                                                             filesig))
-                        else self.meta_urls)
-
                     ts = self._gpg_parse_date(self._gpg_verify(
                         filesig, file)).timestamp()
                     if ts >= desc['BUILDDATE']:
@@ -378,11 +387,8 @@ class Repository:
                 # move fails if already exists
                 os.rename(joinpath(self.destdir, file),
                           joinpath(self.corrupt_dir, file))
-                try:
-                    os.rename(joinpath(self.destdir, filesig),
-                              joinpath(self.archive_dir, filesig))
-                except FileNotFoundError:
-                    pass
+                os.rename(joinpath(self.destdir, filesig),
+                          joinpath(self.archive_dir, filesig))
                 print(f'{file} is corrupt', file=sys.stderr, flush=True)
 
 
