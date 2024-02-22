@@ -32,11 +32,16 @@ Extra subdirectories:
 
 ## Using local mirror
 
-Modify `/etc/pacman.d/mirrorlist.*` in MSYS2. If the *destdir* is `E:\Software\Develop\msys2` for example,
+Comment unused repositories like `[mingw32]` in `/etc/pacman.conf` in MSYS2.
+
+Modify `/etc/pacman.d/mirrorlist.*`. If the *destdir* is `E:\Software\Develop\msys2` for example,
 
 ```
+# mirrorlist.msys
 Server = file:///e/Software/Develop/msys2/msys/$arch/
+
+# mirrorlist.mingw
 Server = file:///e/Software/Develop/msys2/mingw/$repo/
 ```
 
-Each line corresponds to one of the `mirrorlist.*` file. Replace each whitespace in a path by `%20`. Network locations can be used as well: `file:////localhost/...`.
+Replace each whitespace in a path by `%20`. Network locations can be used as well: `file:////localhost/...`.
