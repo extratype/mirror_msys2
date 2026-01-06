@@ -85,6 +85,7 @@ class Repository:
         self.pkgs: ty.Optional[ty.Dict[str, ty.Dict[str, ty.Any]]] = None
         """{dirname: {key: value}} from desc files in the database"""
         self.session = requests.Session()
+        self.session.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0'
 
         os.makedirs(destdir, exist_ok=True)
         os.makedirs(self.archive_dir, exist_ok=True)
