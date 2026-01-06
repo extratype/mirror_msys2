@@ -407,22 +407,21 @@ def main():
     # MSYS2_ARCH = os.environ['MSYSTEM_CARCH']
     # MSYS2_ARCH = 'x86_64'
     # https://www.msys2.org/dev/mirrors/
-    # ('ucrt64', 'mingw/ucrt64'),
+    # ('mingw64', 'mingw/mingw64'),
     # ('clang64', 'mingw/clang64')
     repos = [
         Repository(
             name,
             [joinurl('https://repo.msys2.org', path)],
-            [joinurl('https://mirror.yandex.ru/mirrors/msys2', path),
-             joinurl('https://mirror.tuna.tsinghua.edu.cn/msys2', path),
-             joinurl('https://mirror.msys2.org/', path)],
+            [joinurl('https://mirror.tuna.tsinghua.edu.cn/msys2', path),
+             joinurl('https://mirror.yandex.ru/mirrors/msys2', path),
+             joinurl('https://mirror.msys2.org', path)],
             joinpath(destdir, path))
         for name, path in [
             ('msys', 'msys/x86_64'),
-            ('mingw64', 'mingw/mingw64')]]
+            ('ucrt64', 'mingw/ucrt64')]]
 
     for repo in repos:
-        repo.pkg_urls += repo.meta_urls
         repo.refresh(local)
         repo.cache(local)
 
